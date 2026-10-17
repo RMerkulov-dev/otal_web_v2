@@ -1420,6 +1420,37 @@ button, input, select, textarea {
   }
 }
 
+/* ===== Поява тексту при прокручуванні (Reveal.astro) =================== */
+
+[data-reveal='block'] {
+  transition:
+    opacity 0.9s var(--ease) calc(var(--ri, 0) * 90ms),
+    transform 1s var(--ease) calc(var(--ri, 0) * 90ms);
+}
+
+[data-reveal='block']:not([data-shown]) {
+  opacity: 0;
+  transform: translate3d(0, 1.5rem, 0);
+}
+
+/* Слово виїжджає з-під маски власної «щілини». */
+.reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.reveal-word > span {
+  display: inline-block;
+  transition: transform 1s var(--ease) calc(var(--ri, 0) * 70ms);
+}
+
+[data-reveal='words']:not([data-shown]) .reveal-word > span {
+  transform: translate3d(0, 105%, 0);
+}
+
 /* ===== Менше руху ======================================================= */
 
 @media (prefers-reduced-motion: reduce) {

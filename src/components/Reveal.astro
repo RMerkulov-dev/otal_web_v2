@@ -1,0 +1,81 @@
+---
+/**
+ * Поява тексту секцій під час прокручування.
+ * Заголовки виїжджають по словах з-під маски, решта блоків м'яко проявляється по черзі.
+ * Кожен елемент анімується один раз. Ховаємо лише те, що скрипт сам позначив data-reveal,
+ * тож без JavaScript і з prefers-reduced-motion усе видно одразу.
+ */
+---
+
+<script>
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Групи: елементи всередині однієї групи з'являються по черзі. */
+  const groups = [
+    '.section-head',
+    '.about__grid',
+    '.facts',
+    '.works__grid',
+    '.works__footer',
+    '.laboratory__body',
+    '.reasons',
+    '.steps',
+    '.contacts__info',
+    '.contacts__list',
+  ];
+
+  const blocks = [
+    '.section-head > :not(.heading)',
+    '.about__grid > :not(.heading)',
+    '.facts__cell',
+    '.work-group',
+    '.works__footer > *',
+    '.laboratory__body > :not(.heading, .reasons)',
+    '.reasons > li',
+    '.laboratory__figure',
+    '.step',
+    '.contacts__info > :not(.heading, .contacts__list)',
+    '.contacts__list > div',
+    '.request',
+  ];
+
+  if (!still && 'IntersectionObserver' in window) {
+    /* Заголовок ділимо на слова: кожне — у власній «щілині», з якої воно виїжджає. */
+    document.querySelectorAll<HTMLElement>('main .heading').forEach((heading) => {
+      const words = (heading.textContent ?? '').trim().split(/\s+/);
+      heading.setAttribute('aria-label', words.join(' '));
+      heading.textContent = '';
+      words.forEach((word, i) => {
+        const slot = document.createElement('span');
+        slot.className = 'reveal-word';
+        slot.setAttribute('aria-hidden', 'true');
+        const inner = document.createElement('span');
+        inner.textContent = word;
+        inner.style.setProperty('--ri', String(i));
+        slot.append(inner);
+        heading.append(slot, i < words.length - 1 ? ' ' : '');
+      });
+      heading.dataset.reveal = 'words';
+    });
+
+    document.querySelectorAll<HTMLElement>(blocks.join(',')).forEach((el) => {
+      const group = el.closest(groups.join(','));
+      const siblings = group ? [...group.querySelectorAll('[data-reveal="block"]')] : [];
+      el.dataset.reveal = 'block';
+      el.style.setProperty('--ri', String(siblings.length));
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.setAttribute('data-shown', '');
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.15 },
+    );
+
+    document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el));
+  }
+</script>
