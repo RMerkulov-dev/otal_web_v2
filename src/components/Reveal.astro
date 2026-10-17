@@ -2,7 +2,9 @@
 /**
  * Поява тексту секцій під час прокручування.
  * Заголовки виїжджають по словах з-під маски, решта блоків м'яко проявляється по черзі.
- * Кожен елемент анімується один раз. Ховаємо лише те, що скрипт сам позначив data-reveal,
+ * Живі секції (data-art-host) отримують [data-art-live], поки вони на екрані: від цього
+ * залежать їхні анімації в global.css і табло лабораторії.
+ * Кожен елемент тексту анімується один раз. Ховаємо лише те, що скрипт сам позначив data-reveal,
  * тож без JavaScript і з prefers-reduced-motion усе видно одразу.
  */
 ---
@@ -77,5 +79,45 @@
     );
 
     document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el));
+
+    /* Фонові креслення секцій: прокреслюються, коли секція з'являється, і «живуть»,
+       поки вона на екрані. Пішла з екрана — анімація зупиняється (і перемалюється наступного разу). */
+    const hosts = document.querySelectorAll<HTMLElement>('[data-art-host]');
+    const artObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.toggleAttribute('data-art-live', entry.isIntersecting);
+          if (entry.isIntersecting) entry.target.dispatchEvent(new Event('art:live'));
+        });
+      },
+      { threshold: 0.2 },
+    );
+    hosts.forEach((host) => {
+      host.setAttribute('data-art-armed', '');
+      artObserver.observe(host);
+    });
+
+    /* Табло лабораторії: число «набігає» від нуля, далі ледь коливається, як живий прилад.
+       Працює лише поки секція на екрані. */
+    document.querySelectorAll<HTMLElement>('[data-readout]').forEach((el) => {
+      const target = Number(el.dataset.readout);
+      const host = el.closest<HTMLElement>('[data-art-host]');
+      const format = (n: number) => Math.round(n).toLocaleString('uk-UA');
+      let jitter = 0;
+      host?.addEventListener('art:live', () => {
+        const start = performance.now();
+        const run = (now: number) => {
+          const t = Math.min((now - start) / 1600, 1);
+          el.textContent = format(target * (1 - (1 - t) ** 3));
+          if (t < 1) requestAnimationFrame(run);
+        };
+        requestAnimationFrame(run);
+        window.clearInterval(jitter);
+        jitter = window.setInterval(() => {
+          if (!host.hasAttribute('data-art-live')) return window.clearInterval(jitter);
+          el.textContent = format(target + Math.round((Math.random() - 0.5) * 12));
+        }, 1400);
+      });
+    });
   }
 </script>

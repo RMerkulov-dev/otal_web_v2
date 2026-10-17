@@ -1,9 +1,11 @@
 ---
 import { company } from '../data/company';
 import { services } from '../data/services';
+import SceneArt from './SceneArt.astro';
 ---
 
-<section id="contacts" class="band band--ink contacts" aria-labelledby="contacts-title">
+<section data-art-host id="contacts" class="band band--ink contacts" aria-labelledby="contacts-title">
+  <SceneArt kind="lift" tone="dark" class="art--bg" />
   <div class="shell contacts__grid">
     <div class="contacts__info">
       <h2 id="contacts-title" class="heading">Розрахуємо вартість робіт</h2>

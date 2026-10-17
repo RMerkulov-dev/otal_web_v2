@@ -1,4 +1,6 @@
 ---
+import SceneArt from './SceneArt.astro';
+
 const steps = [
   {
     title: 'Надсилаєте завдання',
@@ -19,22 +21,26 @@ const steps = [
 ];
 ---
 
-<section id="process" class="band band--mist process" aria-labelledby="process-title">
+<section data-art-host id="process" class="band band--mist process" aria-labelledby="process-title">
   <div class="shell">
     <header class="section-head">
       <h2 id="process-title" class="heading">Як ми працюємо</h2>
+      <SceneArt kind="blueprint" tone="light" class="process__art" />
     </header>
 
-    <ol class="steps">
-      {
-        steps.map((step, index) => (
-          <li class="step">
-            <span class="step__index" aria-hidden="true">{index + 1}</span>
-            <h3 class="step__title">{step.title}</h3>
-            <p class="step__text">{step.text}</p>
-          </li>
-        ))
-      }
-    </ol>
+    <div class="steps-track">
+      <span class="steps__line" aria-hidden="true"><i class="steps__pulse"></i></span>
+      <ol class="steps">
+        {
+          steps.map((step, index) => (
+            <li class="step">
+              <span class="step__index" aria-hidden="true">{index + 1}</span>
+              <h3 class="step__title">{step.title}</h3>
+              <p class="step__text">{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
   </div>
 </section>

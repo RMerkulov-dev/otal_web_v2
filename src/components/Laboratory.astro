@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { photos } from '../data/services';
+import SceneArt from './SceneArt.astro';
 
 /** Тут — чим лабораторія корисна замовнику. Перелік випробувань — у розділі «Що ми робимо». */
 const reasons = [
@@ -19,7 +20,7 @@ const reasons = [
 ];
 ---
 
-<section id="laboratory" class="band band--ink laboratory" aria-labelledby="laboratory-title">
+<section data-art-host id="laboratory" class="band band--ink laboratory" aria-labelledby="laboratory-title">
   <div class="shell laboratory__grid">
     <div class="laboratory__body">
       <h2 id="laboratory-title" class="heading">Електротехнічна лабораторія</h2>
@@ -53,6 +54,12 @@ const reasons = [
         sizes="(max-width: 56rem) 100vw, 34rem"
         loading="lazy"
       />
+      <SceneArt kind="meter" class="laboratory__art" />
+      <!-- Табло приладу: число «набігає», коли секція з'являється, і злегка коливається. -->
+      <div class="readout" aria-hidden="true">
+        <span class="readout__label"><i class="readout__dot"></i>Опір ізоляції</span>
+        <span class="readout__value"><span data-readout="2480">2 480</span> МОм</span>
+      </div>
       <figcaption>Вимірювання на відхідній лінії розподільного пристрою</figcaption>
     </figure>
   </div>

@@ -1,5 +1,6 @@
 ---
 import { company } from '../data/company';
+import SceneArt from './SceneArt.astro';
 
 /** `todo: true` — цифри, яких ще немає від замовника. Підставте значення і приберіть прапорець. */
 const facts = [
@@ -10,28 +11,35 @@ const facts = [
 ];
 ---
 
-<section id="about" class="band about" aria-labelledby="about-title">
+<section data-art-host id="about" class="band about" aria-labelledby="about-title">
   <div class="shell">
     <div class="about__grid">
-      <h2 id="about-title" class="heading about__title">
-        Електромонтажний підрядник повного циклу
-      </h2>
-      <p class="lede">
-        {company.legalName} проєктує, монтує, випробовує і ремонтує електрообладнання підстанцій,
-        ліній електропередачі та промислових об’єктів. Один підрядник веде об’єкт від креслення до
-        протоколів і залишається на обслуговуванні після здачі.
-      </p>
+      <div class="about__text">
+        <h2 id="about-title" class="heading about__title">
+          Електромонтажний підрядник повного циклу
+        </h2>
+        <p class="lede">
+          {company.legalName} проєктує, монтує, випробовує і ремонтує електрообладнання підстанцій,
+          ліній електропередачі та промислових об’єктів. Один підрядник веде об’єкт від креслення до
+          протоколів і залишається на обслуговуванні після здачі.
+        </p>
+      </div>
+      <SceneArt kind="tower" tone="light" class="about__art" />
     </div>
 
-    <dl class="facts">
-      {
-        facts.map((fact) => (
-          <div class:list={['facts__cell', { 'facts__cell--todo': fact.todo }]}>
-            <dd class="facts__value">{fact.value}</dd>
-            <dt class="facts__label">{fact.label}</dt>
-          </div>
-        ))
-      }
-    </dl>
+    <!-- Лінія над цифрами — «провід»: імпульс біжить зліва направо, цифри спалахують по черзі. -->
+    <div class="facts-line">
+      <div class="wire" aria-hidden="true"><i></i></div>
+      <dl class="facts">
+        {
+          facts.map((fact) => (
+            <div class:list={['facts__cell', { 'facts__cell--todo': fact.todo }]}>
+              <dd class="facts__value">{fact.value}</dd>
+              <dt class="facts__label">{fact.label}</dt>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
   </div>
 </section>

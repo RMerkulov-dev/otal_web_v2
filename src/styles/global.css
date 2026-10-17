@@ -36,6 +36,8 @@
   --header: 4.5rem;
   --radius: 4px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Спокійна крива для сцен і креслень — потрібна і на першому екрані, і в секціях. */
+  --calm: cubic-bezier(0.45, 0, 0.2, 1);
 }
 
 *,
@@ -556,9 +558,11 @@ button, input, select, textarea {
    Кожна сцена має технічний рисунок свого напряму (SceneArt.astro). При появі сцени лінії
    прокреслюються, потім «живе» одна деталь: струм по проводах, шестерня, стрілка приладу,
    стріла автовишки, зварний шов. Анімації йдуть лише в поточній сцені; коли перший екран
-   прокручено ([data-idle]) — пауза. Без JavaScript рисунок просто намальований. */
+   прокручено ([data-idle]) — пауза. Без JavaScript рисунок просто намальований.
+   Ті самі рисунки живуть і у фоні секцій (.art--bg): там їх вмикає [data-art-live],
+   поки секція на екрані (Reveal.astro). */
 
-.art {
+.scene .art {
   display: none;
 }
 
@@ -570,7 +574,7 @@ button, input, select, textarea {
 
   /* Рисунок — частина першого екрана: без рамки, прямо поверх фото, праворуч від тексту.
      Ширина росте з вікном і займає вільне місце між текстом і перемикачем сцен. */
-  .art {
+  .scene .art {
     display: block;
     position: absolute;
     top: 46%;
@@ -580,7 +584,7 @@ button, input, select, textarea {
   }
 
   /* М'яка тінь під рисунком, щоб білі лінії читалися і на світлих місцях фото. */
-  .art::before {
+  .scene .art::before {
     content: '';
     position: absolute;
     inset: -12%;
@@ -595,9 +599,15 @@ button, input, select, textarea {
   overflow: visible;
 }
 
+.art {
+  --art-line: rgb(255 255 255 / 0.82);
+  --art-dim: rgb(255 255 255 / 0.4);
+  --art-accent: var(--signal);
+}
+
 .art :is(path, circle, rect) {
   fill: none;
-  stroke: rgb(255 255 255 / 0.82);
+  stroke: var(--art-line);
   /* Товщина в одиницях рисунка (viewBox 320): non-scaling-stroke тут не можна —
      у Chromium він ламає pathLength, і лінії прокреслюються не до кінця. */
   stroke-width: 1.6;
@@ -606,11 +616,11 @@ button, input, select, textarea {
 }
 
 .art .a {
-  stroke: var(--signal);
+  stroke: var(--art-accent);
 }
 
 .art .dim {
-  stroke: rgb(255 255 255 / 0.4);
+  stroke: var(--art-dim);
 }
 
 .art .d {
@@ -619,11 +629,11 @@ button, input, select, textarea {
 }
 
 /* Сцена ще не показана — лінії сховані, щоб прокреслитися при появі. */
-.hero.is-live .scene:not([data-active]) .art .d {
+:is(.hero.is-live .scene:not([data-active]), [data-art-armed]:not([data-art-live])) .art .d {
   stroke-dashoffset: 1;
 }
 
-.hero.is-live .scene[data-active] .art .d {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .d {
   animation: art-draw 1.3s var(--calm) calc(0.6s + var(--i, 0) * 0.14s) both;
 }
 
@@ -634,17 +644,17 @@ button, input, select, textarea {
 
 /* Струм: короткі жовті штрихи біжать уздовж лінії. */
 .art .flow {
-  stroke: var(--signal);
+  stroke: var(--art-accent);
   stroke-width: 3;
   stroke-dasharray: 0.04 0.16;
   opacity: 0;
 }
 
-.hero.is-live .scene[data-active] .art .flow {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .flow {
   animation: art-fade 0.6s ease 2s both, art-flow 2.4s linear 2s infinite;
 }
 
-.hero.is-live .scene[data-active] .art .flow--late {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .flow--late {
   animation-delay: 2.3s, 2.3s;
 }
 
@@ -668,11 +678,11 @@ button, input, select, textarea {
   transform-origin: center;
 }
 
-.hero.is-live .scene[data-active] .art .spin {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .spin {
   animation: art-fade 0.8s ease 1.6s both, art-spin 14s linear 1.6s infinite;
 }
 
-.hero.is-live .scene:not([data-active]) .art .spin {
+:is(.hero.is-live .scene:not([data-active]), [data-art-armed]:not([data-art-live])) .art .spin {
   opacity: 0;
 }
 
@@ -687,7 +697,7 @@ button, input, select, textarea {
   transform: rotate(38deg);
 }
 
-.hero.is-live .scene[data-active] .art .needle {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .needle {
   animation: art-needle 5s var(--calm) 1.6s infinite;
 }
 
@@ -706,7 +716,7 @@ button, input, select, textarea {
   transform-origin: 114px 226px;
 }
 
-.hero.is-live .scene[data-active] .art .boom {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .boom {
   animation: art-boom 7s ease-in-out 2.2s infinite alternate;
 }
 
@@ -731,20 +741,20 @@ button, input, select, textarea {
   opacity: 0;
 }
 
-.hero.is-live .scene[data-active] .art .bead {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .bead {
   animation: art-bead 6s linear 1.4s infinite;
 }
 
-.hero.is-live .scene[data-active] .art .torch {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .torch {
   animation: art-torch 6s linear 1.4s infinite;
 }
 
-.hero.is-live .scene[data-active] .art .spark {
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .spark {
   animation: art-spark 0.45s steps(2, jump-none) 1.4s infinite;
 }
 
-.hero.is-live .scene[data-active] .art .spark--2 { animation-delay: 1.55s; }
-.hero.is-live .scene[data-active] .art .spark--3 { animation-delay: 1.7s; }
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .spark--2 { animation-delay: 1.55s; }
+:is(.hero.is-live .scene[data-active], [data-art-live]) .art .spark--3 { animation-delay: 1.7s; }
 
 @keyframes art-bead {
   0% { stroke-dashoffset: 1; opacity: 1; }
@@ -809,7 +819,6 @@ button, input, select, textarea {
 }
 
 .hero.is-live {
-  --calm: cubic-bezier(0.45, 0, 0.2, 1);
   /* Кожна сцена займає 1,25 екрана прокручування: перемикання не наздоганяють одне одне. */
   height: calc((var(--scenes) * 1.25 + 1) * 100vh);
   height: calc((var(--scenes) * 1.25 + 1) * 100svh);
@@ -992,13 +1001,16 @@ button, input, select, textarea {
   gap: 2rem;
 }
 
+.facts-line {
+  position: relative;
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+
 .facts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem 1.5rem;
-  margin-top: clamp(3rem, 6vw, 5rem);
   padding-top: clamp(2rem, 4vw, 3rem);
-  border-top: 1px solid var(--line);
 }
 
 .facts__cell {
@@ -1420,6 +1432,571 @@ button, input, select, textarea {
   }
 }
 
+/* ===== Живі секції ======================================================
+   Анімації за змістом кожної секції. Ідуть, лише поки секція на екрані: атрибут
+   [data-art-live] ставить Reveal.astro. Лише transform і opacity (і колір цифр). */
+
+[data-art-host] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+[data-art-host] > .shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* Струм: короткий світлий відрізок. Біжить уздовж контейнера з container-type,
+   тож шлях дорівнює ширині лінії (100cqw). */
+.wire {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+.wire i,
+.steps__pulse,
+.feeder__bus i {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 18cqw;
+  height: 3px;
+  background: linear-gradient(90deg, rgb(245 184 0 / 0), var(--signal) 80%, #ffe08a);
+  opacity: 0;
+  transform: translate3d(-18cqw, 0, 0);
+}
+
+@keyframes current-run {
+  0% { opacity: 1; transform: translate3d(-18cqw, 0, 0); }
+  70% { opacity: 1; transform: translate3d(100cqw, 0, 0); }
+  100% { opacity: 1; transform: translate3d(100cqw, 0, 0); }
+}
+
+/* «Про компанію»: ізолятори на лінії над кожною цифрою; цифра спалахує, коли до неї
+   доходить імпульс (затримка = положення колонки × час пробігу). */
+.facts__cell {
+  position: relative;
+}
+
+.facts__cell::before {
+  content: '';
+  position: absolute;
+  top: calc(-1 * clamp(2rem, 4vw, 3rem) - 4px);
+  left: 0;
+  width: 1px;
+  height: 9px;
+  background: var(--steel-light);
+}
+
+/* Провід лише над першим рядом: у другому ряду (вузькі екрани) ізоляторів немає. */
+@media (max-width: 59.99rem) {
+  .facts__cell:nth-child(n + 3)::before {
+    display: none;
+  }
+}
+
+.facts__cell { --pos: 0; }
+.facts__cell:nth-child(even) { --pos: 0.5; }
+
+@media (min-width: 60rem) {
+  .facts__cell:nth-child(2) { --pos: 0.25; }
+  .facts__cell:nth-child(3) { --pos: 0.5; }
+  .facts__cell:nth-child(4) { --pos: 0.75; }
+}
+
+.about[data-art-live] .wire i {
+  animation: current-run 5s linear infinite;
+}
+
+.about[data-art-live] .facts__value {
+  animation: fact-charge 5s linear infinite;
+  animation-delay: calc(var(--pos) * 5s * 0.7 / 1.18);
+}
+
+/* Короткий перехід назад: між жовтим і синім колір проходить через оливковий — хай не встигає читатися. */
+@keyframes fact-charge {
+  0%, 12% { color: var(--signal-deep); }
+  15%, 100% { color: var(--ink); }
+}
+
+.facts__cell--todo .facts__value {
+  animation: none !important;
+}
+
+/* «Що ми робимо»: кожна картка — відхідна лінія, верхньою кромкою біжить струм.
+   Наведення — кромка світиться й струм прискорюється. */
+.work-group {
+  position: relative;
+  overflow: hidden;
+}
+
+.work-group::before,
+.work-group::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+}
+
+.work-group::before {
+  background: var(--line);
+  transition: background-color 0.3s var(--ease);
+}
+
+.work-group::after {
+  width: 35%;
+  background: linear-gradient(90deg, rgb(245 184 0 / 0), var(--signal) 80%, #ffe08a);
+  opacity: 0;
+  transform: translate3d(-100%, 0, 0);
+}
+
+.works[data-art-live] .work-group::after {
+  animation: card-current 4.2s linear infinite;
+  animation-delay: calc(var(--ri, 0) * 0.7s);
+}
+
+.work-group:hover::before {
+  background: rgb(245 184 0 / 0.45);
+}
+
+.works[data-art-live] .work-group:hover::after {
+  animation-duration: 1.4s;
+}
+
+@keyframes card-current {
+  0% { opacity: 1; transform: translate3d(-100%, 0, 0); }
+  60%, 100% { opacity: 1; transform: translate3d(290%, 0, 0); }
+}
+
+/* «Лабораторія»: пункти як протокол — смуга ліворуч заповнюється, як шкала вимірювання,
+   потім з'являється позначка «перевірено». */
+.reasons li {
+  position: relative;
+  border-left-color: rgb(255 255 255 / 0.14);
+}
+
+.reasons li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -3px;
+  width: 3px;
+  background: var(--signal);
+  transform-origin: 50% 0;
+}
+
+.reasons h3::after {
+  content: '✓';
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: var(--signal);
+  font-weight: 600;
+}
+
+.reasons li[data-reveal]::before {
+  transform: scaleY(0);
+}
+
+.reasons li[data-reveal] h3::after {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.reasons li[data-shown]::before {
+  transform: scaleY(1);
+  transition: transform 1.1s var(--calm) calc(0.35s + var(--ri, 0) * 0.25s);
+}
+
+.reasons li[data-shown] h3::after {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.4s ease calc(1.35s + var(--ri, 0) * 0.25s),
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(1.35s + var(--ri, 0) * 0.25s);
+}
+
+/* Табло приладу на фото. */
+.readout {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius);
+  background: rgb(10 24 38 / 0.82);
+  color: var(--paper);
+}
+
+.readout__label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--step-xs);
+  color: rgb(255 255 255 / 0.66);
+}
+
+.readout__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+}
+
+.laboratory[data-art-live] .readout__dot {
+  animation: readout-blink 1.6s steps(2, jump-none) infinite;
+}
+
+@keyframes readout-blink {
+  from { opacity: 1; }
+  to { opacity: 0.25; }
+}
+
+.readout__value {
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* «Як ми працюємо»: кроки на одній лінії; імпульс іде від першого до четвертого,
+   номер кроку загоряється, коли імпульс доходить до нього. */
+.steps-track {
+  position: relative;
+}
+
+.steps__line {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .steps__line {
+    display: block;
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: var(--ink);
+    overflow: hidden;
+    container-type: inline-size;
+  }
+
+  .step {
+    border-top-color: transparent;
+  }
+
+  .steps__pulse {
+    top: -0.5px;
+  }
+
+  .process[data-art-live] .steps__pulse {
+    animation: current-run 5.5s linear infinite;
+  }
+}
+
+.step:nth-child(2) { --pos: 0.25; }
+.step:nth-child(3) { --pos: 0.5; }
+.step:nth-child(4) { --pos: 0.75; }
+
+.step__index {
+  transform-origin: 0 100%;
+}
+
+.process[data-art-live] .step__index {
+  animation: step-charge 5.5s linear infinite;
+  animation-delay: calc(var(--pos, 0) * 5.5s * 0.7 / 1.18);
+}
+
+@keyframes step-charge {
+  0%, 10% { color: var(--signal); transform: scale(1.18); }
+  24%, 100% { color: var(--signal-deep); transform: none; }
+}
+
+/* «Контакти»: автовишка заїжджає з лівого краю, колеса крутяться, потім піднімається стріла. */
+.art--bg {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.art--dark {
+  --art-line: rgb(255 255 255 / 0.16);
+  --art-dim: rgb(255 255 255 / 0.08);
+  --art-accent: rgb(245 184 0 / 0.65);
+}
+
+.art--bg :is(path, circle, rect) {
+  stroke-width: 1.4;
+}
+
+.contacts .art--bg {
+  left: max(-1rem, calc((100vw - var(--page)) / 2 - 2rem));
+  /* Колеса й опори стоять усередині секції, а не під підвалом. */
+  bottom: 0.75rem;
+  width: clamp(14rem, 40vw, 24rem);
+  opacity: 0;
+}
+
+.contacts[data-art-live] .art--bg {
+  animation: lift-drive 2.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.art .wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.contacts[data-art-live] .art .wheel {
+  animation: wheel-roll 0.65s linear 4;
+}
+
+@keyframes lift-drive {
+  from { opacity: 1; transform: translate3d(-110%, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes wheel-roll {
+  to { transform: rotate(360deg); }
+}
+
+/* Стріла: у фоні піднімається після заїзду. */
+.contacts[data-art-live] .art .boom {
+  animation: art-boom 6s ease-in-out 2.8s infinite alternate;
+}
+
+/* Телефон і планшет: форма займає всю ширину — під нею «смуга дороги» для автовишки. */
+@media (max-width: 63.99rem) {
+  .contacts {
+    padding-bottom: calc(clamp(4rem, 8vw, 7.5rem) + 10.5rem);
+  }
+
+  .contacts .art--bg {
+    width: 13rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  /* Під адресою лишається невисока смуга — машина й піднята стріла мають у неї вміститися. */
+  .contacts {
+    padding-bottom: calc(clamp(4rem, 8vw, 7.5rem) + 3.5rem);
+  }
+
+  .contacts .art--bg {
+    width: clamp(13rem, 17vw, 16.5rem);
+  }
+}
+
+/* ===== Моушн-сцени секцій ===============================================
+   Ті самі креслення, що на першому екрані, але на своєму місці в макеті секції. */
+
+.art--light {
+  --art-line: rgb(15 33 51 / 0.62);
+  --art-dim: rgb(15 33 51 / 0.3);
+  --art-accent: var(--signal-deep);
+}
+
+/* «Про компанію»: опора ПЛ поруч із текстом. */
+.about__text {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.about__art {
+  justify-self: end;
+  width: min(100%, 17rem);
+  margin-top: -1rem;
+}
+
+@media (min-width: 60rem) {
+  .about__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 23rem);
+    align-items: center;
+  }
+
+  .about__art {
+    width: 100%;
+    margin-block: -3rem -2rem;
+  }
+}
+
+/* «Що ми робимо»: трансформатор живить шину, відгалуження йдуть у колонки карток. */
+.feeder {
+  display: none;
+}
+
+@media (min-width: 46rem) {
+  .feeder {
+    display: block;
+    position: relative;
+    height: 4.75rem;
+    margin-top: -1.5rem;
+  }
+
+  .feeder__tr {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1.75rem;
+    height: 2.8rem;
+    fill: none;
+    stroke: rgb(15 33 51 / 0.55);
+    stroke-width: 2;
+  }
+
+  .feeder__bus,
+  .feeder__drop {
+    position: absolute;
+    overflow: hidden;
+    background: rgb(15 33 51 / 0.3);
+  }
+
+  .feeder__bus {
+    top: 2.8rem;
+    left: 0.875rem;
+    right: 0;
+    height: 2px;
+    container-type: inline-size;
+  }
+
+  .feeder__bus i {
+    top: -0.5px;
+  }
+
+  .feeder__drop {
+    top: 2.8rem;
+    bottom: 0;
+    width: 2px;
+    --col: 2;
+    --gap: 1.25rem;
+    left: calc((100% - var(--gap) * (var(--col) - 1)) / var(--col) * (var(--n) + 0.5) + var(--gap) * var(--n) - 1px);
+  }
+
+  .feeder__drop:nth-child(3) { --n: 0; --pos: 0.25; }
+  .feeder__drop:nth-child(4) { --n: 1; --pos: 0.75; }
+  .feeder__drop:nth-child(5) { display: none; }
+
+  .feeder__drop i {
+    position: absolute;
+    top: 0;
+    left: -0.5px;
+    width: 3px;
+    height: 45%;
+    background: linear-gradient(180deg, rgb(245 184 0 / 0), var(--signal) 80%, #ffe08a);
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+  }
+
+  .works[data-art-live] .feeder__bus i {
+    animation: current-run 4s linear infinite;
+  }
+
+  .works[data-art-live] .feeder__drop i {
+    animation: drop-run 4s linear infinite;
+    animation-delay: calc(4s * 0.7 * (var(--pos) + 0.18) / 1.18);
+  }
+}
+
+@media (min-width: 64rem) {
+  .feeder__drop { --col: 3; }
+  .feeder__drop:nth-child(3) { --pos: 0.1667; }
+  .feeder__drop:nth-child(4) { --pos: 0.5; }
+  .feeder__drop:nth-child(5) { display: block; --n: 2; --pos: 0.8333; }
+}
+
+@keyframes drop-run {
+  0% { opacity: 1; transform: translate3d(0, -100%, 0); }
+  25%, 100% { opacity: 1; transform: translate3d(0, 230%, 0); }
+}
+
+/* «Лабораторія»: прилад прокреслюється просто на фото, стрілка «міряє». */
+.laboratory__art {
+  position: absolute;
+  isolation: isolate;
+  right: 0.75rem;
+  bottom: 2.75rem;
+  width: min(58%, 20rem);
+}
+
+.laboratory__art::before {
+  content: '';
+  position: absolute;
+  inset: -14%;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgb(10 24 38 / 0.85), rgb(10 24 38 / 0.35) 70%, rgb(10 24 38 / 0));
+}
+
+/* «Як ми працюємо»: креслення в шапці — аркуш прокреслюється, ставиться печатка. */
+.process__art {
+  width: min(100%, 24rem);
+}
+
+@media (min-width: 60rem) {
+  .process__art {
+    justify-self: end;
+    width: min(100%, 28rem);
+    margin-bottom: -1rem;
+  }
+}
+
+.art .stamp {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+:is(.hero.is-live .scene:not([data-active]), [data-art-armed]:not([data-art-live])) .art .stamp {
+  opacity: 0;
+}
+
+[data-art-live] .art .stamp {
+  animation: stamp-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 2.3s both;
+}
+
+/* Індикатори: сигнальний вогонь на опорі, маячок автовишки, лампа приладу. */
+.art .led {
+  fill: var(--art-accent);
+  stroke: none;
+  opacity: 0.2;
+}
+
+[data-art-live] .art .led,
+.hero.is-live .scene[data-active] .art .led {
+  animation: led-blink 1.4s steps(2, jump-none) 1.2s infinite;
+}
+
+[data-art-live] .art .led--fast,
+.hero.is-live .scene[data-active] .art .led--fast {
+  animation-duration: 0.7s;
+}
+
+@keyframes led-blink {
+  from { opacity: 1; }
+  to { opacity: 0.2; }
+}
+
+/* Креслення: олівець ходить уздовж розмірної лінії. */
+.art .pen {
+  transform-box: view-box;
+}
+
+[data-art-live] .art .pen {
+  animation: pen-draw 4.5s ease-in-out 2s infinite alternate;
+}
+
+@keyframes pen-draw {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(232px, 0, 0); }
+}
+
+@keyframes stamp-in {
+  from { opacity: 0; transform: scale(1.8) rotate(-18deg); }
+  to { opacity: 1; transform: rotate(-8deg); }
+}
+
 /* ===== Поява тексту при прокручуванні (Reveal.astro) =================== */
 
 [data-reveal='block'] {
@@ -1458,15 +2035,15 @@ button, input, select, textarea {
     scroll-behavior: auto;
   }
 
-  .hero.is-live .scene .art :is(path, circle, rect, g) {
+  .art :is(path, circle, rect, g) {
     animation: none !important;
     stroke-dashoffset: 0 !important;
-    opacity: 1;
+    opacity: 1 !important;
   }
 
-  .hero.is-live .scene .art .spark,
-  .hero.is-live .scene .art .flow {
-    opacity: 0;
+  .art .spark,
+  .art .flow {
+    opacity: 0 !important;
   }
 
   *,

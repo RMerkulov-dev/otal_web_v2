@@ -3,7 +3,7 @@ import { services } from '../data/services';
 import { company } from '../data/company';
 ---
 
-<section id="services" class="band band--mist works" aria-labelledby="works-title">
+<section data-art-host id="services" class="band band--mist works" aria-labelledby="works-title">
   <div class="shell">
     <header class="section-head">
       <h2 id="works-title" class="heading">Що ми робимо</h2>
@@ -12,6 +12,20 @@ import { company } from '../data/company';
         виїзду на об’єкт.
       </p>
     </header>
+
+    <!-- Однолінійна схема: трансформатор живить шину, відгалуження йдуть у кожну колонку карток. -->
+    <div class="feeder" aria-hidden="true">
+      <svg class="feeder__tr" viewBox="0 0 40 64">
+        <path d="M20 0 V10" />
+        <circle cx="20" cy="22" r="11" />
+        <circle cx="20" cy="38" r="11" />
+        <path d="M20 49 V64" />
+      </svg>
+      <span class="feeder__bus"><i></i></span>
+      <span class="feeder__drop"><i></i></span>
+      <span class="feeder__drop"><i></i></span>
+      <span class="feeder__drop"><i></i></span>
+    </div>
 
     <div class="works__grid">
       {

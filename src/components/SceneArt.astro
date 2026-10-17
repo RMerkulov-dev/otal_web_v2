@@ -1,23 +1,31 @@
 ---
 /**
- * Технічний рисунок для сцени першого екрана — у стилі креслення, своя тема на кожен напрям.
+ * Технічний рисунок у стилі креслення, своя тема на кожен напрям: сцени першого екрана
+ * й моушн-сцени секцій нижче.
  * Класи керують анімацією (див. global.css, «Креслення на першому екрані»):
  *   d    — лінія прокреслюється при появі сцени (порядок задає --i);
  *   a    — жовтий акцент;
  *   flow — по лінії біжить струм;
- *   решта (spin, needle, boom, bead, torch, spark) — «жива» деталь конкретного рисунка.
+ *   led  — індикатор, що блимає;
+   решта (spin, needle, boom, bead, torch, spark, pen, stamp) — «жива» деталь рисунка.
  */
-export type ArtKind = 'tower' | 'transformer' | 'scheme' | 'meter' | 'lift' | 'weld';
+export type ArtKind = 'tower' | 'transformer' | 'scheme' | 'meter' | 'lift' | 'weld' | 'blueprint';
 
 interface Props {
   kind: ArtKind;
+  /** Кольори ліній: light — темні лінії для світлих секцій, dark — приглушені світлі
+      для фону темних. Без tone — білі лінії, як на першому екрані. */
+  tone?: 'light' | 'dark';
+  /** Клас місця в макеті секції. */
+  class?: string;
 }
 
-const { kind } = Astro.props;
+const { kind, tone, class: place } = Astro.props;
+const viewBox = kind === 'blueprint' ? '0 0 480 200' : '0 0 320 320';
 ---
 
-<div class="art" data-art={kind} aria-hidden="true">
-  <svg viewBox="0 0 320 320">
+<div class:list={['art', tone && `art--${tone}`, place]} data-art={kind} aria-hidden="true">
+  <svg viewBox={viewBox}>
     {
       kind === 'tower' && (
         <>
@@ -35,6 +43,7 @@ const { kind } = Astro.props;
           <path class="flow" pathLength="1" d="M0 116 Q50 128 100 104 Q160 126 220 104 Q270 128 320 116" />
           <path class="flow flow--late" pathLength="1" d="M0 156 Q56 166 112 144 Q160 164 208 144 Q264 166 320 156" />
           <path class="d" style="--i: 6" pathLength="1" d="M90 300 H230" />
+          <circle class="led" cx="160" cy="34" r="5" />
         </>
       )
     }
@@ -91,6 +100,10 @@ const { kind } = Astro.props;
           </g>
           <path class="d" style="--i: 4" pathLength="1" d="M120 246 C120 278 92 284 92 304 M200 246 C200 278 228 284 228 304" />
           <path class="d a" style="--i: 5" pathLength="1" d="M86 304 h12 M222 304 h12" />
+          <path class="flow" pathLength="1" d="M120 246 C120 278 92 284 92 304" />
+          <path class="flow flow--late" pathLength="1" d="M200 246 C200 278 228 284 228 304" />
+          <circle class="led" cx="84" cy="80" r="5" />
+          <path class="d dim" style="--i: 5" pathLength="1" d="M128 216 H192 V234 H128 Z" />
         </>
       )
     }
@@ -98,10 +111,11 @@ const { kind } = Astro.props;
       kind === 'lift' && (
         <>
           <path class="d" style="--i: 0" pathLength="1" d="M40 262 H232 V226 H40 Z M232 262 H284 V230 L266 206 H232" />
-          <circle class="d" style="--i: 1" pathLength="1" cx="78" cy="268" r="14" />
-          <circle class="d" style="--i: 1" pathLength="1" cx="130" cy="268" r="14" />
-          <circle class="d" style="--i: 1" pathLength="1" cx="252" cy="268" r="14" />
+          <g class="wheel"><circle class="d" style="--i: 1" pathLength="1" cx="78" cy="268" r="14" /><path class="d" style="--i: 2" pathLength="1" d="M78 258 V278 M68 268 H88" /></g>
+          <g class="wheel"><circle class="d" style="--i: 1" pathLength="1" cx="130" cy="268" r="14" /><path class="d" style="--i: 2" pathLength="1" d="M130 258 V278 M120 268 H140" /></g>
+          <g class="wheel"><circle class="d" style="--i: 1" pathLength="1" cx="252" cy="268" r="14" /><path class="d" style="--i: 2" pathLength="1" d="M252 258 V278 M242 268 H262" /></g>
           <path class="d" style="--i: 2" pathLength="1" d="M40 280 V294 M232 280 V294 M30 294 H50 M222 294 H242" />
+          <circle class="led led--fast" cx="258" cy="200" r="5" />
           <g class="boom">
             <path class="d" style="--i: 3" pathLength="1" d="M110 226 L222 92" />
             <path class="d" style="--i: 3" pathLength="1" d="M118 226 L226 98" />
@@ -125,6 +139,35 @@ const { kind } = Astro.props;
             <path class="spark" d="M150 150 l-14 -8" />
             <path class="spark spark--2" d="M172 152 l16 -6" />
             <path class="spark spark--3" d="M158 158 l-10 10" />
+          </g>
+        </>
+      )
+    }
+    {
+      kind === 'blueprint' && (
+        <>
+          <path class="d" style="--i: 0" pathLength="1" d="M12 12 H444 L468 36 V188 H12 Z M444 12 V36 H468" />
+          <path class="d dim" style="--i: 1" pathLength="1" d="M318 142 H468 M318 142 V188 M318 158 H468 M392 158 V188" />
+          <path class="d" style="--i: 2" pathLength="1" d="M40 78 H96" />
+          <rect class="d a" style="--i: 3" pathLength="1" x="96" y="68" width="20" height="20" />
+          <path class="d" style="--i: 4" pathLength="1" d="M116 78 H142" />
+          <circle class="d" style="--i: 5" pathLength="1" cx="158" cy="78" r="16" />
+          <circle class="d" style="--i: 5" pathLength="1" cx="182" cy="78" r="16" />
+          <path class="d" style="--i: 6" pathLength="1" d="M198 78 H232 M232 46 V128" />
+          <path class="d" style="--i: 7" pathLength="1" d="M232 56 H272 M232 100 H272 M232 122 H272" />
+          <path class="d" style="--i: 8" pathLength="1" d="M266 50 L274 56 L266 62 M266 94 L274 100 L266 106 M266 116 L274 122 L266 128" />
+          <path class="flow" pathLength="1" d="M40 78 H96 M116 78 H142" />
+          <path class="flow flow--late" pathLength="1" d="M232 56 H272" />
+          <path class="d dim" style="--i: 9" pathLength="1" d="M40 156 H272 M40 150 V162 M272 150 V162" />
+          <g class="pen">
+            <path d="M40 150 L34 128 L46 128 Z" />
+            <path class="a" d="M40 150 L38 143 L42 143 Z" />
+            <path d="M34 128 L34 104 H46 V128" />
+          </g>
+          <g class="stamp">
+            <circle class="a" cx="392" cy="82" r="30" />
+            <circle class="a" cx="392" cy="82" r="24" />
+            <path class="a" d="M380 82 L389 92 L405 72" />
           </g>
         </>
       )
