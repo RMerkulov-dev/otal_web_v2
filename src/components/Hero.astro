@@ -1,5 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
+import SceneArt, { type ArtKind } from './SceneArt.astro';
 import { services } from '../data/services';
 import montazh from '../assets/hero/montazh.jpg';
 import remont from '../assets/hero/remont.jpg';
@@ -16,6 +17,7 @@ const byId = (id: string) => services.find((service) => service.id === id)!;
 const scenes = [
   {
     id: 'scene-installation',
+    art: 'tower' as ArtKind,
     short: 'Монтаж',
     title: 'Монтаж електрообладнання до 330 кВ',
     text: 'Трансформатори, кабельні й повітряні лінії, розподільні пристрої. Беремо об’єкт від проєкту до здачі в експлуатацію.',
@@ -30,6 +32,7 @@ const scenes = [
   },
   {
     id: 'scene-repair',
+    art: 'transformer' as ArtKind,
     short: 'Ремонт',
     title: 'Ремонт трансформаторів і розподільних пристроїв',
     text: 'Перемотуємо обмотки, ревізуємо вимикачі, модернізуємо РП. Повертаємо в роботу те, що вже стоїть на об’єкті.',
@@ -44,6 +47,7 @@ const scenes = [
   },
   {
     id: 'scene-design',
+    art: 'scheme' as ArtKind,
     short: 'Проєктування',
     title: 'Проєктування і кошториси',
     text: 'Вишукування на об’єкті, проєктна документація та кошториси в АВК-5, які приймають і замовник, і експертиза.',
@@ -58,6 +62,7 @@ const scenes = [
   },
   {
     id: 'scene-laboratory',
+    art: 'meter' as ArtKind,
     short: 'Лабораторія',
     title: 'Власна електротехнічна лабораторія',
     text: 'Вимірюємо й випробовуємо обладнання та засоби захисту, видаємо протоколи для енергонагляду — без сторонніх підрядників.',
@@ -72,6 +77,7 @@ const scenes = [
   },
   {
     id: 'scene-machinery',
+    art: 'lift' as ArtKind,
     short: 'Техніка',
     title: 'Спецтехніка з оператором',
     text: 'Автовишка, міні-екскаватор і кран-маніпулятор виїжджають разом з бригадою — не треба шукати техніку окремо.',
@@ -86,6 +92,7 @@ const scenes = [
   },
   {
     id: 'scene-welding',
+    art: 'weld' as ArtKind,
     short: 'Зварювання',
     title: 'Зварювальні роботи',
     text: 'Металоконструкції, рами під обладнання й закладні деталі під електромонтаж на вашому об’єкті.',
@@ -169,6 +176,8 @@ const scenes = [
               </div>
             </div>
 
+            <SceneArt kind={scene.art} />
+
             <dl class="scene__facts">
               {scene.facts.map((fact) => (
                 <div class="scene__fact">
@@ -181,13 +190,6 @@ const scenes = [
         </article>
       ))
     }
-
-    <!-- Модульна сітка поверх фото: колонки макета, до яких вирівняні тексти й цифри. -->
-    <div class="hero__grid" aria-hidden="true" data-grid>
-      <div class="shell hero__grid-shell">
-        {Array.from({ length: 6 }, () => <span><i class="hero__current" /></span>)}
-      </div>
-    </div>
 
     <nav class="hero__rail" aria-label="Напрями на першому екрані">
       <ol>
@@ -239,19 +241,9 @@ const scenes = [
       });
     };
 
-    /* При зміні сцени лінією під шапкою пробігає імпульс — «подали напругу». */
-    const grid = hero.querySelector<HTMLElement>('[data-grid]');
-    const surge = () => {
-      if (!grid) return;
-      grid.removeAttribute('data-surge');
-      void grid.offsetWidth;
-      grid.setAttribute('data-surge', '');
-    };
-
     const show = (index: number) => {
       if (index === current) return;
       warm(index);
-      surge();
       scenes.forEach((scene, i) => {
         scene.toggleAttribute('data-active', i === index);
         scene.toggleAttribute('data-past', i < index);
@@ -273,7 +265,7 @@ const scenes = [
       const progress = Math.min(Math.max(-rect.top / travel, 0), 1);
       const position = progress * count;
       hero.style.setProperty('--progress', progress.toFixed(4));
-      /* Перший екран прокручено — ставимо анімацію енергії на паузу. */
+      /* Перший екран прокручено — ставимо анімацію креслень на паузу. */
       hero.toggleAttribute('data-idle', rect.bottom < window.innerHeight * 0.15);
       links.forEach((link, i) => {
         const fill = Math.min(Math.max(position - i, 0), 1);

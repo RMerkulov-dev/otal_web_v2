@@ -1,0 +1,133 @@
+---
+/**
+ * Технічний рисунок для сцени першого екрана — у стилі креслення, своя тема на кожен напрям.
+ * Класи керують анімацією (див. global.css, «Креслення на першому екрані»):
+ *   d    — лінія прокреслюється при появі сцени (порядок задає --i);
+ *   a    — жовтий акцент;
+ *   flow — по лінії біжить струм;
+ *   решта (spin, needle, boom, bead, torch, spark) — «жива» деталь конкретного рисунка.
+ */
+export type ArtKind = 'tower' | 'transformer' | 'scheme' | 'meter' | 'lift' | 'weld';
+
+interface Props {
+  kind: ArtKind;
+}
+
+const { kind } = Astro.props;
+---
+
+<div class="art" data-art={kind} aria-hidden="true">
+  <svg viewBox="0 0 320 320">
+    {
+      kind === 'tower' && (
+        <>
+          <path class="d" style="--i: 0" pathLength="1" d="M160 40 L120 300 M160 40 L200 300" />
+          <path class="d" style="--i: 1" pathLength="1" d="M96 90 H224 M108 130 H212" />
+          <path
+            class="d"
+            style="--i: 2"
+            pathLength="1"
+            d="M150.8 100 L176.9 150 M169.2 100 L143.1 150 M143.1 150 L184.6 200 M176.9 150 L135.4 200 M135.4 200 L192.3 250 M184.6 200 L127.7 250 M127.7 250 L200 300 M192.3 250 L120 300"
+          />
+          <path class="d a" style="--i: 3" pathLength="1" d="M100 90 v14 M220 90 v14 M112 130 v14 M208 130 v14" />
+          <path class="d" style="--i: 4" pathLength="1" d="M0 116 Q50 128 100 104 Q160 126 220 104 Q270 128 320 116" />
+          <path class="d" style="--i: 5" pathLength="1" d="M0 156 Q56 166 112 144 Q160 164 208 144 Q264 166 320 156" />
+          <path class="flow" pathLength="1" d="M0 116 Q50 128 100 104 Q160 126 220 104 Q270 128 320 116" />
+          <path class="flow flow--late" pathLength="1" d="M0 156 Q56 166 112 144 Q160 164 208 144 Q264 166 320 156" />
+          <path class="d" style="--i: 6" pathLength="1" d="M90 300 H230" />
+        </>
+      )
+    }
+    {
+      kind === 'transformer' && (
+        <>
+          <path class="d" style="--i: 0" pathLength="1" d="M160 30 V82 M160 248 V300" />
+          <circle class="d" style="--i: 1" pathLength="1" cx="160" cy="132" r="50" />
+          <circle class="d" style="--i: 2" pathLength="1" cx="160" cy="198" r="50" />
+          <path class="d a" style="--i: 3" pathLength="1" d="M160 112 L144 140 H176 Z" />
+          <path class="d a" style="--i: 4" pathLength="1" d="M160 198 V176 M160 198 L141 210 M160 198 L179 210" />
+          <path class="d" style="--i: 5" pathLength="1" d="M140 30 H180 M140 300 H180" />
+          <g class="spin">
+            <circle class="gear-teeth" cx="252" cy="252" r="26" />
+            <circle cx="252" cy="252" r="15" />
+            <circle class="a" cx="252" cy="252" r="4" />
+          </g>
+        </>
+      )
+    }
+    {
+      kind === 'scheme' && (
+        <>
+          <path class="d" style="--i: 0" pathLength="1" d="M160 28 V76" />
+          <rect class="d a" style="--i: 1" pathLength="1" x="148" y="76" width="24" height="24" />
+          <path class="d" style="--i: 2" pathLength="1" d="M160 100 V118" />
+          <circle class="d" style="--i: 3" pathLength="1" cx="160" cy="138" r="20" />
+          <circle class="d" style="--i: 4" pathLength="1" cx="160" cy="166" r="20" />
+          <path class="d" style="--i: 5" pathLength="1" d="M160 186 V214" />
+          <path class="d a" style="--i: 6" pathLength="1" d="M60 214 H260" />
+          <path class="d" style="--i: 7" pathLength="1" d="M90 214 V270 M140 214 V270 M190 214 V270 M240 214 V270" />
+          <path class="d" style="--i: 8" pathLength="1" d="M84 262 L90 272 L96 262 M134 262 L140 272 L146 262 M184 262 L190 272 L196 262 M234 262 L240 272 L246 262" />
+          <path class="flow" pathLength="1" d="M90 214 V270" />
+          <path class="flow flow--late" pathLength="1" d="M190 214 V270" />
+          <path class="d dim" style="--i: 9" pathLength="1" d="M60 296 H260 M60 290 V302 M260 290 V302" />
+        </>
+      )
+    }
+    {
+      kind === 'meter' && (
+        <>
+          <rect class="d" style="--i: 0" pathLength="1" x="60" y="56" width="200" height="190" rx="14" />
+          <path class="d" style="--i: 1" pathLength="1" d="M90 196 A70 70 0 0 1 230 196" />
+          <path
+            class="d"
+            style="--i: 2"
+            pathLength="1"
+            d="M95 172 L104 177 M108 148 L116 155 M131 131 L136 140 M160 126 V136 M189 131 L184 140 M212 148 L204 155 M225 172 L216 177"
+          />
+          <path class="d a" style="--i: 3" pathLength="1" d="M189 131 A70 70 0 0 1 230 196" />
+          <g class="needle">
+            <path class="a" d="M160 196 L160 138" />
+            <circle cx="160" cy="196" r="6" />
+          </g>
+          <path class="d" style="--i: 4" pathLength="1" d="M120 246 C120 278 92 284 92 304 M200 246 C200 278 228 284 228 304" />
+          <path class="d a" style="--i: 5" pathLength="1" d="M86 304 h12 M222 304 h12" />
+        </>
+      )
+    }
+    {
+      kind === 'lift' && (
+        <>
+          <path class="d" style="--i: 0" pathLength="1" d="M40 262 H232 V226 H40 Z M232 262 H284 V230 L266 206 H232" />
+          <circle class="d" style="--i: 1" pathLength="1" cx="78" cy="268" r="14" />
+          <circle class="d" style="--i: 1" pathLength="1" cx="130" cy="268" r="14" />
+          <circle class="d" style="--i: 1" pathLength="1" cx="252" cy="268" r="14" />
+          <path class="d" style="--i: 2" pathLength="1" d="M40 280 V294 M232 280 V294 M30 294 H50 M222 294 H242" />
+          <g class="boom">
+            <path class="d" style="--i: 3" pathLength="1" d="M110 226 L222 92" />
+            <path class="d" style="--i: 3" pathLength="1" d="M118 226 L226 98" />
+            <rect class="d a" style="--i: 4" pathLength="1" x="214" y="62" width="40" height="28" />
+            <path class="d" style="--i: 4" pathLength="1" d="M218 70 H250" />
+          </g>
+          <circle class="d a" style="--i: 3" pathLength="1" cx="114" cy="226" r="7" />
+        </>
+      )
+    }
+    {
+      kind === 'weld' && (
+        <>
+          <path class="d" style="--i: 0" pathLength="1" d="M40 160 L150 186 V244 L40 218 Z" />
+          <path class="d" style="--i: 1" pathLength="1" d="M280 160 L170 186 V244 L280 218 Z" />
+          <path class="d" style="--i: 2" pathLength="1" d="M150 186 L160 160 L170 186" />
+          <path class="bead a" pathLength="1" d="M160 160 q6 6 0 12 q-6 6 0 12 q6 6 0 12 q-6 6 0 12 q6 6 0 12 q-6 6 0 12" />
+          <g class="torch">
+            <path d="M160 150 L196 72 M168 154 L204 76 M196 72 L204 76" />
+            <path class="a" d="M160 150 L164 156" />
+            <path class="spark" d="M150 150 l-14 -8" />
+            <path class="spark spark--2" d="M172 152 l16 -6" />
+            <path class="spark spark--3" d="M158 158 l-10 10" />
+          </g>
+        </>
+      )
+    }
+  </svg>
+</div>
